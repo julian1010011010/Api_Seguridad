@@ -1,4 +1,5 @@
 using Api_Seguridad.Domain.ApiKeys;
+using Api_Seguridad.Domain.ClientesExternos;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api_Seguridad.Infrastructure.ApiKeys;
@@ -11,6 +12,7 @@ public sealed class GatewayDbContext : DbContext
 	}
 
 	public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+	public DbSet<ClienteExterno> ClientesExternos => Set<ClienteExterno>();
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -29,6 +31,21 @@ public sealed class GatewayDbContext : DbContext
 			entity.Property(e => e.FechaCreacion).HasColumnType("datetime2(3)");
 			entity.Property(e => e.FechaActualizacion).HasColumnType("datetime2(3)");
 			entity.Property(e => e.FechaUltimaConsulta).HasColumnType("datetime2(3)");
+		});
+
+		modelBuilder.Entity<ClienteExterno>(entity =>
+		{
+			entity.ToTable("ClientesExternos", "Gateway");
+			entity.HasKey(e => e.Id);
+			entity.Property(e => e.Id).HasColumnName("Id");
+			entity.Property(e => e.Nombre).HasMaxLength(200).IsRequired();
+			entity.Property(e => e.Usuario).HasMaxLength(100).IsRequired();
+			entity.Property(e => e.PasswordHash).HasMaxLength(256).IsRequired();
+			entity.Property(e => e.Estado).HasColumnType("tinyint");
+			entity.Property(e => e.IdApiKey).HasColumnName("IdApiKey");
+			entity.Property(e => e.FechaCreacion).HasColumnType("datetime2(3)");
+			entity.Property(e => e.FechaActualizacion).HasColumnType("datetime2(3)");
+			entity.Property(e => e.FechaUltimoAcceso).HasColumnType("datetime2(3)");
 		});
 	}
 }
@@ -64,5 +81,15 @@ public class ApiKeyRepository : IApiKeyRepository
 		_dbContext.ApiKeys.Add(apiKey);
 		await _dbContext.SaveChangesAsync(cancellationToken);
 		return apiKey;
+	}
+
+	public async Task<ApiKey?> DeactivateAsync(int idApiKey, CancellationToken cancellationToken = default)
+	{
+		var entity = await _dbContext.ApiKeys.FirstOrDefaultAsync(x => x.IdApiKey == idApiKey, cancellationToken);
+		if (entity is null) return null;
+		entity.Estado = false;
+		entity.FechaActualizacion = DateTime.UtcNow;
+		await _dbContext.SaveChangesAsync(cancellationToken);
+		return entity;
 	}
 }

@@ -22,6 +22,7 @@ builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
 builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
 builder.Services.AddSingleton<IApiKeyFactory, ApiKeyFactory>();
 builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
+builder.Services.AddScoped<IApiKeyRotationService, ApiKeyRotationService>();
 
 var app = builder.Build();
 
@@ -43,4 +44,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
- 

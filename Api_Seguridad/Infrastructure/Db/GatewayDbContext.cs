@@ -41,13 +41,19 @@ public sealed class GatewayDbContext : DbContext
 			entity.HasKey(e => e.Id);
 			entity.Property(e => e.Id).HasColumnName("Id");
 			entity.Property(e => e.Nombre).HasMaxLength(200).IsRequired();
-			entity.Property(e => e.Usuario).HasMaxLength(100).IsRequired();
-			entity.Property(e => e.PasswordHash).HasMaxLength(256).IsRequired();
+			entity.Property(e => e.Usuario).HasMaxLength(150).IsRequired();
+			entity.Property(e => e.PasswordHash).HasMaxLength(150).IsRequired();
 			entity.Property(e => e.Estado).HasColumnType("tinyint");
 			entity.Property(e => e.IdApiKey).HasColumnName("IdApiKey");
 			entity.Property(e => e.FechaCreacion).HasColumnType("datetime2(3)");
 			entity.Property(e => e.FechaActualizacion).HasColumnType("datetime2(3)");
 			entity.Property(e => e.FechaUltimoAcceso).HasColumnType("datetime2(3)");
+
+			// FK opcional a ApiKey.IdApiKey
+			entity.HasOne<ApiKey>()
+				.WithMany()
+				.HasForeignKey(e => e.IdApiKey)
+				.OnDelete(DeleteBehavior.NoAction);
 		});
 	}
 }

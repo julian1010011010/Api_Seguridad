@@ -27,9 +27,9 @@ public sealed class ApiKeyService : IApiKeyService
             return null;
         }
 
-        if (cliente.IdApiKey != 0)
+        if (cliente.IdApiKey.HasValue)
         {
-            var existing = await _db.ApiKeys.FirstOrDefaultAsync(x => x.IdApiKey == cliente.IdApiKey, cancellationToken);
+            var existing = await _db.ApiKeys.FirstOrDefaultAsync(x => x.IdApiKey == cliente.IdApiKey.Value, cancellationToken);
             if (existing is not null)
             {
                 existing.Estado = false;

@@ -15,7 +15,6 @@ public class ApiKeyRepository : IApiKeyRepository
 
 	public async Task<ApiKey?> GetByHashAsync(string hash, CancellationToken cancellationToken = default)
 	{
-		// Consulta usando EF Core sobre el hash cifrado
 		return await _dbContext.ApiKeys
 			.AsNoTracking()
 			.Where(x => x.Cifrado == hash && x.Estado)

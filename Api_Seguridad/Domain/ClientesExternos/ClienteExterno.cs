@@ -31,9 +31,9 @@ public class ClienteExterno
     public byte Estado { get; set; } = 1; // tinyint
 
     /// <summary>
-    /// Identificador de la API Key asociada (PK de la tabla Gateway.ApiKey).
+    /// Identificador de la API Key asociada (PK de la tabla Gateway.ApiKey). Puede ser nulo.
     /// </summary>
-    public int IdApiKey { get; set; }
+    public int? IdApiKey { get; set; }
 
     /// <summary>
     /// Fecha de creación del registro.
@@ -50,5 +50,6 @@ public class ClienteExterno
     /// </summary>
     public DateTime? FechaUltimoAcceso { get; set; }
 
- 
+    // Navegación opcional (si quieres modelar la relación en dominio)
+    // public ApiKey ApiKey { get; set; } = null!;
 }

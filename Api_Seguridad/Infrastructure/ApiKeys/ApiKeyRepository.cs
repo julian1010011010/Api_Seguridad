@@ -19,10 +19,16 @@ public sealed class GatewayDbContext : DbContext
 		modelBuilder.Entity<ApiKey>(entity =>
 		{
 			entity.ToTable("ApiKey", "Gateway");
-			entity.HasKey(e => e.Id);
-			entity.Property(e => e.Cifrado).HasMaxLength(64).IsRequired();
+			entity.HasKey(e => e.IdApiKey); // PK en la tabla
+			entity.Property(e => e.IdApiKey).HasColumnName("IdApiKey");
+			entity.Property(e => e.Id).HasColumnName("Id");
+			entity.Property(e => e.Cifrado).HasColumnType("char(64)").IsRequired();
 			entity.Property(e => e.NombreCliente).HasMaxLength(200).IsRequired();
-			entity.Property(e => e.Permisos).HasMaxLength(500);
+			entity.Property(e => e.Permisos).HasMaxLength(500).IsRequired();
+			entity.Property(e => e.Estado).HasColumnType("bit");
+			entity.Property(e => e.FechaCreacion).HasColumnType("datetime2(3)");
+			entity.Property(e => e.FechaActualizacion).HasColumnType("datetime2(3)");
+			entity.Property(e => e.FechaUltimaConsulta).HasColumnType("datetime2(3)");
 		});
 	}
 }
@@ -41,7 +47,7 @@ public class ApiKeyRepository : IApiKeyRepository
 		// Consulta usando EF Core sobre el hash cifrado
 		return await _dbContext.ApiKeys
 			.AsNoTracking()
-			.Where(x => x.Cifrado == hash && x.Estado == 1)
+			.Where(x => x.Cifrado == hash && x.Estado)
 			.FirstOrDefaultAsync(cancellationToken);
 	}
 
@@ -49,7 +55,7 @@ public class ApiKeyRepository : IApiKeyRepository
 	{
 		return await _dbContext.ApiKeys
 			.AsNoTracking()
-			.Where(x => x.Id == id && x.NombreCliente == nombreCliente && x.Estado == 1)
+			.Where(x => x.Id == id && x.NombreCliente == nombreCliente && x.Estado)
 			.FirstOrDefaultAsync(cancellationToken);
 	}
 

@@ -30,14 +30,14 @@ public sealed class ApiKeyService : IApiKeyService
     {
         var now = DateTime.UtcNow.Date; // sin horas/minutos/segundos
 
-        var entity = new ApiKey
-        {
-            Id = Guid.NewGuid(),
-            NombreCliente = nombreCliente,
-            Permisos = permisos ?? string.Empty,
-            Estado = 1,
-            FechaCreacion = now
-        };
+		var entity = new ApiKey
+		{
+			Id = Guid.NewGuid(),
+			NombreCliente = nombreCliente,
+			Permisos = permisos ?? string.Empty,
+			Estado = true,
+			FechaCreacion = now
+		};
 
         var apiKeyString = _factory.BuildApiKey(entity);
         entity.Cifrado = _factory.ComputeHash(apiKeyString);

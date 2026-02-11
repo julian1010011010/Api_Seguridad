@@ -48,7 +48,7 @@ public sealed class ApiKeyService : IApiKeyService
         };
 
         var apiKeyString = _factory.BuildApiKey(entity);
-        entity.Cifrado = _factory.ComputeHash(apiKeyString);
+        entity.Cifrado = ApiKeyHelpers.ComputeSha256Hash(apiKeyString);
 
         _db.ApiKeys.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
@@ -63,7 +63,7 @@ public sealed class ApiKeyService : IApiKeyService
     public async Task<ApiKey?> BuscarPorApiKeyVisibleAsync(string apiKeyVisible, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(apiKeyVisible)) return null;
-        var hash = _factory.ComputeHash(apiKeyVisible);
+        var hash = ApiKeyHelpers.ComputeSha256Hash(apiKeyVisible);
         return await _repository.GetByHashAsync(hash, cancellationToken);
     }
 }

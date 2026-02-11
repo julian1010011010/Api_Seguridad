@@ -1,6 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
-
 namespace Api_Seguridad.Application.ApiKeys;
 
 public static class GenerateApiKeyConsole
@@ -20,24 +17,12 @@ public static class GenerateApiKeyConsole
 
         var apiKey = $"{empresa}-{codigo}-{fecha}-{guid}";
 
-        var hash = ComputeSha256Hash(apiKey);
+        var hash = ApiKeyHelpers.ComputeSha256Hash(apiKey);
 
         // TODO: persistir en BD usando tu infraestructura (EF Core / Dapper / SP)
         Console.WriteLine("\nApiKey generada (ENTREGAR AL CLIENTE, NO SE GUARDA EN BD):");
         Console.WriteLine(apiKey);
         Console.WriteLine("\nHash (se guarda en la tabla Gateway.ApiKey.Cifrado):");
         Console.WriteLine(hash);
-    }
-
-    public static string ComputeSha256Hash(string rawData)
-    {
-        using var sha256 = SHA256.Create();
-        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-        var builder = new StringBuilder();
-        foreach (var b in bytes)
-        {
-            builder.Append(b.ToString("x2"));
-        }
-        return builder.ToString();
     }
 }

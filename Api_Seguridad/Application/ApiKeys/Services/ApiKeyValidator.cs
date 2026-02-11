@@ -1,14 +1,7 @@
-using System.Security.Cryptography;
-using System.Text;
 using Api_Seguridad.Domain.ApiKeys;
 using Api_Seguridad.Infrastructure.ApiKeys;
 
-namespace Api_Seguridad.Application.ApiKeys;
-
-public interface IApiKeyValidator
-{
-    Task<ApiKeyValidationResult> ValidateAsync(string? apiKey, CancellationToken cancellationToken = default);
-}
+namespace Api_Seguridad.Application.ApiKeys.Services;
 
 public sealed class ApiKeyValidator : IApiKeyValidator
 {
@@ -32,7 +25,7 @@ public sealed class ApiKeyValidator : IApiKeyValidator
             };
         }
 
-        var hash = ComputeSha256Hash(apiKey);
+        var hash = ApiKeyHelpers.ComputeSha256Hash(apiKey);
 
         var entity = await _repository.GetByHashAsync(hash, cancellationToken);
         if (entity == null)
@@ -50,17 +43,5 @@ public sealed class ApiKeyValidator : IApiKeyValidator
             IsValid = true,
             ApiKey = entity
         };
-    }
-
-    private static string ComputeSha256Hash(string rawData)
-    {
-        using var sha256 = SHA256.Create();
-        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-        var builder = new StringBuilder();
-        foreach (var b in bytes)
-        {
-            builder.Append(b.ToString("x2"));
-        }
-        return builder.ToString();
     }
 }

@@ -1,14 +1,6 @@
-using System.Security.Cryptography;
-using System.Text;
 using Api_Seguridad.Domain.ApiKeys;
 
 namespace Api_Seguridad.Application.ApiKeys;
-
-public interface IApiKeyFactory
-{
-    string BuildApiKey(ApiKey entity);
-    string ComputeHash(string apiKey);
-}
 
 public sealed class ApiKeyFactory : IApiKeyFactory
 {
@@ -22,13 +14,6 @@ public sealed class ApiKeyFactory : IApiKeyFactory
 
     public string ComputeHash(string apiKey)
     {
-        using var sha256 = SHA256.Create();
-        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(apiKey));
-        var sb = new StringBuilder(bytes.Length * 2);
-        foreach (var b in bytes)
-        {
-            sb.Append(b.ToString("x2"));
-        }
-        return sb.ToString();
+        return ApiKeyHelpers.ComputeSha256Hash(apiKey);
     }
 }

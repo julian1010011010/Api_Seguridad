@@ -42,12 +42,23 @@ public class ApiKeyController : ControllerBase
         var entity = await _apiKeyService.BuscarPorApiKeyVisibleAsync(request.ApiKey, cancellationToken);
         var exists = entity is not null;
 
+        if (!exists)
+        {
+            return BadRequest(new ApiResponse<object>
+            {
+                Success = false,
+                Code = CodigosResultado.RESULTADO_ERROR,
+                Message = "ApiKey no encontrada",
+                Data = new { existe = false }
+            });
+        }
+
         return Ok(new ApiResponse<object>
         {
             Success = true,
             Code = CodigosResultado.RESULTADO_EXITOSO,
-            Message = exists ? "ApiKey existe" : "ApiKey no encontrada",
-            Data = new { existe = exists }
+            Message = "ApiKey existe",
+            Data = new { existe = true }
         });
     }
 }

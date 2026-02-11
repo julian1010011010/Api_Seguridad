@@ -1,6 +1,7 @@
 using Api_Seguridad.Api.Security;
 using Api_Seguridad.Application.ApiKeys;
 using Api_Seguridad.Infrastructure.ApiKeys;
+using Api_Seguridad.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +21,12 @@ builder.Services.AddDbContext<GatewayDbContext>(options =>
 
 builder.Services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
 builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
+
+// Helpers
 builder.Services.AddSingleton<IApiKeyFactory, ApiKeyFactory>();
+
+// Unified service
 builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
-builder.Services.AddScoped<IApiKeyRotationService, ApiKeyRotationService>();
 
 var app = builder.Build();
 

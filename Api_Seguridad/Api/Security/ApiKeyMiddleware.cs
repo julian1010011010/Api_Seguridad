@@ -18,9 +18,9 @@ public class ApiKeyMiddleware
 
     public async Task InvokeAsync(HttpContext context, IApiKeyValidator validator)
     {
-		// Rutas que no requieren API Key (p.ej., login)
+		// Rutas que no requieren API Key (p.ej., login y apiKey check)
 		var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
-		if (path.StartsWith("/api/login"))
+		if (path.StartsWith("/api/login") || path.StartsWith("/api/apikey"))
 		{
 			await _next(context);
 			return;

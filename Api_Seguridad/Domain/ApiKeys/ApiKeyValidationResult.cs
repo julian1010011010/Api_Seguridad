@@ -1,6 +1,4 @@
-using Api_Seguridad.Domain.ApiKeys;
-
-namespace Api_Seguridad.Application.ApiKeys;
+namespace Api_Seguridad.Domain.ApiKeys;
 
 public sealed class ApiKeyValidationResult
 {

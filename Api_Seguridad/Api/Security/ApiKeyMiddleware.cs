@@ -1,5 +1,6 @@
 using System.Net;
 using Api_Seguridad.Application.ApiKeys;
+using Api_Seguridad.Domain.Common;
 using Microsoft.AspNetCore.Http;
 
 namespace Api_Seguridad.Api.Security;
@@ -18,15 +19,15 @@ public class ApiKeyMiddleware
 
     public async Task InvokeAsync(HttpContext context, IApiKeyValidator validator)
     {
-		// Rutas que no requieren API Key (p.ej., login y apiKey check)
-		var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
-		if (path.StartsWith("/api/login") || path.StartsWith("/api/apikey"))
-		{
-			await _next(context);
-			return;
-		}
+        // Rutas que no requieren API Key (p.ej., login y apiKey check)
+        var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+        if (path.StartsWith("/api/login") || path.StartsWith("/api/apikey"))
+        {
+            await _next(context);
+            return;
+        }
 
-		var apiKey = context.Request.Headers[ApiKeyHeaderName].FirstOrDefault();
+        var apiKey = context.Request.Headers[ApiKeyHeaderName].FirstOrDefault();
 
         var result = await validator.ValidateAsync(apiKey, context.RequestAborted);
         if (!result.IsValid || result.ApiKey == null)
@@ -36,10 +37,13 @@ public class ApiKeyMiddleware
                 context.Request.Path);
 
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            await context.Response.WriteAsJsonAsync(new
+            await context.Response.WriteAsJsonAsync(new ApiResponse<object>
             {
-                error = "Unauthorized",
-                message = result.Error ?? "API key invalid or missing"
+                Success = false,
+                Code = CodigosResultado.RESULTADO_ERROR,
+                Message = result.Error ?? "API key invalid or missing",
+                Data = null,
+                Errors = new List<string>()
             });
             return;
         }

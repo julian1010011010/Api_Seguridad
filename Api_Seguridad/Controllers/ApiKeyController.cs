@@ -1,5 +1,6 @@
 using Api_Seguridad.Application.ApiKeys;
 using Api_Seguridad.Domain.Common;
+using Api_Seguridad.Domain.ApiKeys;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api_Seguridad.Controllers;
@@ -61,9 +62,4 @@ public class ApiKeyController : ControllerBase
             Data = new { existe = true }
         });
     }
-}
-
-public sealed class ApiKeyRequest
-{
-    public string ApiKey { get; set; } = string.Empty;
 }

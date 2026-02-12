@@ -6,7 +6,7 @@ namespace Api_Seguridad.Domain.ApiKeys;
 public class ApiKey
 {
     /// <summary>
-    /// Identificador lógico (GUID) usado en la construcción de la API Key visible.
+    /// Identificador lï¿½gico (GUID) usado en la construcciï¿½n de la API Key visible.
     /// </summary>
     public Guid Id { get; set; }
 
@@ -36,17 +36,22 @@ public class ApiKey
     public bool Estado { get; set; } // bit en BD: true = activo, false = inactivo
 
     /// <summary>
-    /// Fecha de creación de la API Key.
+    /// Fecha de creaciï¿½n de la API Key.
     /// </summary>
     public DateTime FechaCreacion { get; set; }
 
     /// <summary>
-    /// Fecha de última actualización de la API Key.
+    /// Fecha de Ãºltima actualizaciÃ³n de la API Key.
     /// </summary>
     public DateTime? FechaActualizacion { get; set; }
 
     /// <summary>
-    /// Fecha de la última validación/consulta realizada con esta API Key.
+    /// Fecha de expiraciÃ³n de la API Key (null = no expira).
+    /// </summary>
+    public DateTime? FechaExpiracion { get; set; }
+
+    /// <summary>
+    /// Fecha de la Ãºltima validaciÃ³n/consulta realizada con esta API Key.
     /// </summary>
     public DateTime? FechaUltimaConsulta { get; set; }
 }

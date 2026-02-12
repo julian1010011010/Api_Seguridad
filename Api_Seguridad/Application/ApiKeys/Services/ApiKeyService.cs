@@ -19,9 +19,10 @@ public sealed class ApiKeyService : IApiKeyService
         _db = db;
     }
 
-    public async Task<(ApiKey apiKey, ClienteExterno cliente, string apiKeyVisible)?> AutenticarYGenerarApiKeyAsync(string usuario, string passwordHash, CancellationToken cancellationToken = default)
+    public async Task<(ApiKey apiKey, ClienteExterno cliente, string apiKeyVisible)?> AutenticarYGenerarApiKeyAsync(string usuario, string password, CancellationToken cancellationToken = default)
     {
-        var cliente = await _db.ClientesExternos.FirstOrDefaultAsync(x => x.Usuario == usuario && x.PasswordHash == passwordHash, cancellationToken);
+        var hash = ApiKeyHelpers.ComputeSha256Hash(password);
+        var cliente = await _db.ClientesExternos.FirstOrDefaultAsync(x => x.Usuario == usuario && x.PasswordHash == hash, cancellationToken);
         if (cliente is null)
         {
             return null;
@@ -60,10 +61,47 @@ public sealed class ApiKeyService : IApiKeyService
         return (entity, cliente, apiKeyString);
     }
 
-    public async Task<ApiKey?> BuscarPorApiKeyVisibleAsync(string apiKeyVisible, CancellationToken cancellationToken = default)
+    public async Task<ApiKeyValidationResult> BuscarPorApiKeyVisibleAsync(string apiKeyVisible, string requiredPermission, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(apiKeyVisible)) return null;
+        if (string.IsNullOrWhiteSpace(apiKeyVisible))
+        {
+            return new ApiKeyValidationResult { IsValid = false, Error = "API Key es obligatoria" };
+        }
+
+        // 1. Hashear con SHA-256 y buscar por hash
         var hash = ApiKeyHelpers.ComputeSha256Hash(apiKeyVisible);
-        return await _repository.GetByHashAsync(hash, cancellationToken);
+        var entity = await _repository.GetByHashAsync(hash, cancellationToken);
+
+        if (entity is null)
+        {
+            return new ApiKeyValidationResult { IsValid = false, Error = "API Key no encontrada" };
+        }
+
+        // 2. Validar estado activo
+        if (!entity.Estado)
+        {
+            return new ApiKeyValidationResult { IsValid = false, Error = "API Key inactiva" };
+        }
+
+        // 3. Validar expiración
+        if (entity.FechaExpiracion.HasValue && entity.FechaExpiracion.Value < DateTime.UtcNow)
+        {
+            return new ApiKeyValidationResult { IsValid = false, Error = "API Key expirada" };
+        }
+
+        // 4. Validar permiso solicitado
+        if (!string.IsNullOrWhiteSpace(requiredPermission))
+        {
+            var scopes = (entity.Permisos ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (!scopes.Contains(requiredPermission))
+            {
+                return new ApiKeyValidationResult { IsValid = false, Error = $"API Key no tiene el permiso '{requiredPermission}'" };
+            }
+        }
+
+        return new ApiKeyValidationResult { IsValid = true, ApiKey = entity };
     }
 }

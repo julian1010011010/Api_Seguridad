@@ -32,6 +32,7 @@ public sealed class GatewayDbContext : DbContext
 			entity.Property(e => e.Estado).HasColumnType("bit");
 			entity.Property(e => e.FechaCreacion).HasColumnType("datetime2(3)");
 			entity.Property(e => e.FechaActualizacion).HasColumnType("datetime2(3)");
+			entity.Property(e => e.FechaExpiracion).HasColumnType("datetime2(3)");
 			entity.Property(e => e.FechaUltimaConsulta).HasColumnType("datetime2(3)");
 		});
 

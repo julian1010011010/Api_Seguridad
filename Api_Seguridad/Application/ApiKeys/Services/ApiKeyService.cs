@@ -21,8 +21,9 @@ public sealed class ApiKeyService : IApiKeyService
 
     public async Task<(ApiKey apiKey, ClienteExterno cliente, string apiKeyVisible)?> AutenticarYGenerarApiKeyAsync(string usuario, string password, CancellationToken cancellationToken = default)
     {
+    try {
         var hash = ApiKeyHelpers.ComputeSha256Hash(password);
-        var cliente = await _db.ClientesExternos.FirstOrDefaultAsync(x => x.Usuario == usuario && x.PasswordHash == hash, cancellationToken);
+        var cliente = await _db.ClientesExternos.FirstOrDefaultAsync(x => x.Usuario == usuario && x.PasswordHash == hash);
         if (cliente is null)
         {
             return null;
@@ -30,12 +31,12 @@ public sealed class ApiKeyService : IApiKeyService
 
         if (cliente.IdApiKey.HasValue)
         {
-            var existing = await _db.ApiKeys.FirstOrDefaultAsync(x => x.IdApiKey == cliente.IdApiKey.Value, cancellationToken);
+            var existing = await _db.ApiKeys.FirstOrDefaultAsync(x => x.IdApiKey == cliente.IdApiKey.Value);
             if (existing is not null)
             {
                 existing.Estado = false;
                 existing.FechaActualizacion = DateTime.UtcNow;
-                await _db.SaveChangesAsync(cancellationToken);
+                await _db.SaveChangesAsync();
             }
         }
 
@@ -52,13 +53,19 @@ public sealed class ApiKeyService : IApiKeyService
         entity.Cifrado = ApiKeyHelpers.ComputeSha256Hash(apiKeyString);
 
         _db.ApiKeys.Add(entity);
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAsync();
 
         cliente.IdApiKey = entity.IdApiKey;
         cliente.FechaActualizacion = DateTime.UtcNow;
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAsync();
 
         return (entity, cliente, apiKeyString);
+        } 
+        catch (Exception ex) {
+            // Loguear el error aquí (ejemplo: usando ILogger)
+            // _logger.LogError(ex, "Error al autenticar y generar API Key para usuario {Usuario}", usuario);
+            throw; // Re-lanzar la excepción para que el controlador pueda manejarla y retornar un error adecuado al cliente
+            }
     }
 
     public async Task<ApiKeyValidationResult> BuscarPorApiKeyVisibleAsync(string apiKeyVisible, string requiredPermission, CancellationToken cancellationToken = default)

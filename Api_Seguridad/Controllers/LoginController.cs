@@ -1,6 +1,7 @@
 using Api_Seguridad.Application.ApiKeys;
 using Api_Seguridad.Domain.Auth;
 using Api_Seguridad.Domain.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api_Seguridad.Controllers;
@@ -40,7 +41,7 @@ public class LoginController : ControllerBase
 	/// <response code="401">No autorizado</response>
 	[HttpPost]
 	[Produces("application/json")]
-	[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)] 
 	public async Task<IActionResult> Post([FromBody] LoginRequest request, CancellationToken cancellationToken)
 	{
 		if (request is null || string.IsNullOrWhiteSpace(request.Usuario) || string.IsNullOrWhiteSpace(request.Password))

@@ -18,7 +18,7 @@ public class ApiKeyRepository : IApiKeyRepository
 		return await _dbContext.ApiKeys
 			.AsNoTracking()
 			.Where(x => x.Cifrado == hash && x.Estado)
-			.FirstOrDefaultAsync(cancellationToken);
+			.FirstOrDefaultAsync();
 	}
 
 	public async Task<ApiKey?> GetByIdAndClientAsync(Guid id, string nombreCliente, CancellationToken cancellationToken = default)
@@ -26,13 +26,13 @@ public class ApiKeyRepository : IApiKeyRepository
 		return await _dbContext.ApiKeys
 			.AsNoTracking()
 			.Where(x => x.Id == id && x.NombreCliente == nombreCliente && x.Estado)
-			.FirstOrDefaultAsync(cancellationToken);
+			.FirstOrDefaultAsync();
 	}
 
 	public async Task<ApiKey> CreateAsync(ApiKey apiKey, CancellationToken cancellationToken = default)
 	{
 		_dbContext.ApiKeys.Add(apiKey);
-		await _dbContext.SaveChangesAsync(cancellationToken);
+		await _dbContext.SaveChangesAsync();
 		return apiKey;
 	}
 
@@ -42,7 +42,7 @@ public class ApiKeyRepository : IApiKeyRepository
 		if (entity is null) return null;
 		entity.Estado = false;
 		entity.FechaActualizacion = DateTime.UtcNow;
-		await _dbContext.SaveChangesAsync(cancellationToken);
+		await _dbContext.SaveChangesAsync();
 		return entity;
 	}
 }

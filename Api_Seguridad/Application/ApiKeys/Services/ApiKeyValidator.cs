@@ -16,32 +16,45 @@ public sealed class ApiKeyValidator : IApiKeyValidator
 
     public async Task<ApiKeyValidationResult> ValidateAsync(string? apiKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(apiKey))
+        try 
         {
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                return new ApiKeyValidationResult
+                {
+                    IsValid = false,
+                    Error = "API key missing"
+                };
+            }
+
+            var hash = ApiKeyHelpers.ComputeSha256Hash(apiKey);
+
+            var entity = await _repository.GetByHashAsync(hash, cancellationToken);
+            if (entity == null)
+            {
+                _logger.LogWarning("API key no valida");
+                return new ApiKeyValidationResult
+                {
+                    IsValid = false,
+                    Error = "API key invalid"
+                };
+            }
+
+            return new ApiKeyValidationResult
+            {
+                IsValid = true,
+                ApiKey = entity
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,"db error");
             return new ApiKeyValidationResult
             {
                 IsValid = false,
-                Error = "API key missing"
-            };
+                Error = "Database error while validating API key"
+            };  
         }
-
-        var hash = ApiKeyHelpers.ComputeSha256Hash(apiKey);
-
-        var entity = await _repository.GetByHashAsync(hash, cancellationToken);
-        if (entity == null)
-        {
-            _logger.LogWarning("API key no valida");
-            return new ApiKeyValidationResult
-            {
-                IsValid = false,
-                Error = "API key invalid"
-            };
-        }
-
-        return new ApiKeyValidationResult
-        {
-            IsValid = true,
-            ApiKey = entity
-        };
+       
     }
 }

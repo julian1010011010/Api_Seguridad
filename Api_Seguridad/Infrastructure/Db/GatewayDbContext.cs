@@ -22,7 +22,7 @@ public sealed class GatewayDbContext : DbContext
 
 		modelBuilder.Entity<ApiKey>(entity =>
 		{
-			entity.ToTable("ApiKey", "Gateway");
+			entity.ToTable("Gateway_ApiKey", "DBA");
 			entity.HasKey(e => e.IdApiKey); // PK en la tabla
 			entity.Property(e => e.IdApiKey).HasColumnName("IdApiKey");
 			entity.Property(e => e.Id).HasColumnName("Id");
@@ -38,7 +38,7 @@ public sealed class GatewayDbContext : DbContext
 
 		modelBuilder.Entity<ClienteExterno>(entity =>
 		{
-			entity.ToTable("ClientesExternos", "Gateway");
+			entity.ToTable("Gateway_ClientesExternos", "DBA");
 			entity.HasKey(e => e.Id);
 			entity.Property(e => e.Id).HasColumnName("Id");
 			entity.Property(e => e.Nombre).HasMaxLength(200).IsRequired();
